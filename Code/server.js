@@ -1,6 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const dbFunct = require("./modules/dbFunctions.js");
 // import { v4 as uuidv4 } from 'uuid';
 // import express from 'express';
 
@@ -8,11 +9,16 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(express.json()); //middleware to parse JSON body
 app.use(express.urlencoded()); //middleware to parse URL-encoded body
-let todoData = getTodos();
+
+dbFunct.createDatabaseIfNotExists();
+
+let todoLijst = dbFunct.loadTodos();
+
+console.log(todoLijst);
 
 app.get("/", (req, res) =>{
-    let namen = generateColumnNames(todoData.todoLijst);
-    res.render("layoutColumns", {namen: namen, taken: todoData.todoLijst });
+    let namen = generateColumnNames(todoLijst);
+    res.render("layoutColumns", {namen: namen, taken: todoLijst });
 })
 
 app.get("/grid", (req, res) =>{
@@ -20,7 +26,7 @@ app.get("/grid", (req, res) =>{
     let data = getNext7Dates();
     data.push("Later");
     data.push("Te laat");
-    let modifiedTodoList = modifyDates(todoData.todoLijst);
+    let modifiedTodoList = modifyDates(todoLijst);
     res.render("layoutGrid", {Data: data,  taken: modifiedTodoList });
 })
 
@@ -30,10 +36,9 @@ app.get("/addTodo" , (req, res) => {
 
 app.get("/delete", (req,res) =>{
     let todoTeVewijderenId = req.query.identificatie;
-    let index = todoData.todoLijst.findIndex(todo => todo.id == todoTeVewijderenId);
-
-    todoData.todoLijst.splice(index,1);
-    saveTodos();
+    //let index = todoData.todoLijst.findIndex(todo => todo.id == todoTeVewijderenId);
+    dbFunct.deleteTodoInDB(todoTeVewijderenId);
+    todoLijst = dbFunct.loadTodos();
 
     res.redirect("/" + req.query.returnLocation);
 })
@@ -52,30 +57,28 @@ app.post("/submit", (req, res) => {
         nieuweDatum = `${datumSplit[2]}-${datumSplit[1]}-${datumSplit[0]}`;
     }    
     
-    let newTodo = {"naam": req.body.naamVeld, "todo": req.body.taakVeld, "datum": nieuweDatum, "id": newId};
+    let newTodo = {"naam": req.body.naamVeld, "taak": req.body.taakVeld, "datum": nieuweDatum, "id": newId};
     console.log(newTodo);
-    todoData.todoLijst.push(newTodo);
+    dbFunct.insertTodoIntoDB(newTodo);
+    todoLijst = dbFunct.loadTodos();
 
-    saveTodos();
     res.redirect('/');    
 })
 
 app.post("/updateTodoName", (req, res) =>{
     console.log("updating data");
-    let todo = todoData.todoLijst.find(todo => todo.id == req.body.id);
+    let todo = todoLijst.find(todo => todo.id == req.body.id);
     todo.naam = req.body.naam;
-    console.log(todoData);
-    saveTodos();
+    dbFunct.updateTodoInDB(todo.id, todo);
 
     res.json({ success: true });
 });
 
 app.post("/updateTodoDate", (req, res) =>{
     console.log("updating data");
-    let todo = todoData.todoLijst.find(todo => todo.id == req.body.id);
+    let todo = todoLijst.find(todo => todo.id == req.body.id);
     todo.datum = req.body.datum;
-    console.log(todoData);
-    saveTodos();
+    dbFunct.updateTodoInDB(todo.id, todo);
    
     res.json({ success: true });
 });
@@ -115,8 +118,6 @@ function generateColumnNames(todolijst)
             columnNames.push(taak.naam);
         }
     });
-
-    columnNames = columnNames.sort();
 
     return columnNames;    
 }

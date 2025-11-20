@@ -139,7 +139,7 @@
                   <% taken.filter(function(t) {return t.datum == datum}).forEach(function(todo) { %>  
                     <div class="card" draggable="true" data-id="<%= todo.id %>" ondragstart="onDragStart(event)">
                       <div class="header d-flex justify-content-between align-items-center mb-2">
-                        <div class="title"><%= todo.todo %></div>
+                        <div class="title"><%= todo.taak %></div>
                         <a href="/delete?identificatie=<%= todo.id %>&returnLocation=grid" class="delete-btn text-muted" title="Delete">
                           <i class="bi bi-trash"></i>
                         </a>
@@ -166,7 +166,7 @@
           <strong style="font-size:14px">Niet vastgelegd</strong>
           <% taken.filter(function(t) {return t.datum == ""}).forEach(function(todo) { %>
             <div class="card" draggable="true" data-id="<%= todo.id %>" ondragstart="onDragStart(event)">
-                <div class="title"><%= todo.todo %></div>
+                <div class="title"><%= todo.taak %></div>
                 <div class="meta">
                   <span class="right"><%= todo.datum %></span>
                 </div>
