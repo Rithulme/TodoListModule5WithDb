@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rooster layout</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --gap: 16px;
+      --sidebar-width: 260px;
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #4f46e5;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: #0f172a
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 1fr var(--sidebar-width);
+      gap: var(--gap);
+      padding: 20px;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Left grid */
+    .grid-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: var(--gap);
+      height: 100%;
+    }
+
+    .cell-header {
+      background: linear-gradient(135deg, #bebfc0, #eef0f3);
+      /* blue gradient */
+      color: #202020;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      letter-spacing: 0.5px;
+    }
+
+    .grid-cell {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 250, 251, 0.9));
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 10px rgba(2, 6, 23, 0.04);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    .grid-cell.dragover {
+      outline: 3px dashed rgba(79, 70, 229, 0.18);
+      border-radius: 8px;
+    }
+
+    /* Right sidebar split */
+    .sidebar {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--gap);
+    }
+
+    .sidebar-top {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .sidebar-source {
+      background: linear-gradient(180deg, #fff, #fbfdff);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      overflow: auto;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 8px 0;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+      cursor: grab;
+      user-select: none;
+    }
+
+    .card:active {
+      cursor: grabbing
+    }
+
+    .card .meta {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between; 
+      align-items: center;
+      width: 50%; 
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid p-3">
+    <div class="page">
+
+      <div class="grid-board">
+
+        <% Data.forEach(function(datum, i) { %>
+            <div class="grid-cell" data-cell="<%= i %>"
+              <% if((datum != "Te laat") && (datum != "Later")) { %>
+               ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
+              <% } %>
+              >
+                <div class="cell-header"><%= datum %></div>
+                <div class="cell-body">
+                  <% taken.filter(function(t) {return t.datum == datum}).forEach(function(todo) { %>  
+                    <div class="card" draggable="true" data-id="<%= todo.id %>" ondragstart="onDragStart(event)">
+                      <div class="header d-flex justify-content-between align-items-center mb-2">
+                        <div class="title"><%= todo.todo %></div>
+                        <a href="/delete?identificatie=<%= todo.id %>&returnLocation=grid" class="delete-btn text-muted" title="Delete">
+                          <i class="bi bi-trash"></i>
+                        </a>
+                      </div>
+                      <div class="meta">
+                        <span class="left"><%= todo.naam %></span>
+                        <span class="right"><%= todo.datum %></span>
+                      </div>                      
+                    </div>
+                  <% }); %>
+                </div>
+            </div>
+        <% }); %>      
+      </div>
+
+      <div class="sidebar">
+        <div class="sidebar-top">
+          <div class="d-grid gap-2">
+            <a href="http://localhost:3000/addTodo" class="btn btn-sm btn-primary">Todo toevoegen</a>
+            <a href="http://localhost:3000/" class="btn btn-sm btn-secondary">Naamlijst</a>
+          </div>
+        </div>
+        <div class="sidebar-source" id="sourceArea">
+          <strong style="font-size:14px">Niet vastgelegd</strong>
+          <% taken.filter(function(t) {return t.datum == ""}).forEach(function(todo) { %>
+            <div class="card" draggable="true" data-id="<%= todo.id %>" ondragstart="onDragStart(event)">
+                <div class="title"><%= todo.todo %></div>
+                <div class="meta">
+                  <span class="right"><%= todo.datum %></span>
+                </div>
+            </div>
+          <% }); %>          
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let nextId = 100;
+
+    function onDragStart(e) {
+      const id = e.target.dataset.id || '';
+      e.dataTransfer.setData('text/plain', id);
+    }
+
+    function onDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('dragover');
+    }
+
+    function onDragLeave(e) {
+      e.currentTarget.classList.remove('dragover');
+    }
+
+    function onDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('dragover');
+      const id = e.dataTransfer.getData('text/plain');
+      const dragged = document.querySelector(`[data-id="${id}"]`);
+      if (dragged && !e.currentTarget.contains(dragged)) {
+        e.currentTarget.appendChild(dragged);
+      }
+
+      const field = e.currentTarget.closest('.grid-cell');
+      const fieldDatum = field.querySelector('.cell-header').textContent.trim();
+  
+      fetch('/updateTodoDate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          datum: fieldDatum, // or columnIndex
+        }),
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to update');
+        // Force reload
+        window.location.reload();
+      })
+      .catch(err => console.error(err));
+    }
+  </script>
+</body>
+</html>
