@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calendar Todo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .calendar-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .weekday-header {
+            background: #fafafa;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .calendar-cell {
+            min-height: 140px;
+            border: 1px solid #f0f0f0;
+            padding: 0.5rem;
+            vertical-align: top;
+        }
+
+        .date-number {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+            color: #333;
+        }
+
+        .task-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            background: #fcfcfc;
+        }
+
+        .task-card h6 {
+            font-size: 0.85rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .task-card p {
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .modal-content {
+            padding: 1rem;
+        }
+
+        .modal-body {
+            padding-bottom: 1.5rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+</head>
+
+<body class="bg-light">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between mb-4">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#popupForm">Taak toevoegen</button>
+            <button class="btn btn-secondary">Settings</button>
+            <div class="d-flex gap-2 align-items-center" style="width: 200px;">
+                <button class="btn btn-primary w-100">Previous</button>
+                <a href="/gotoDate?month=12&year=2025" class="btn btn-primary w-100">Next</a>
+            </div>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-header text-center">November 2025</div>
+
+            <div class="row g-0 text-center">
+                <div class="col weekday-header">Ma</div>
+                <div class="col weekday-header">Di</div>
+                <div class="col weekday-header">Wo</div>
+                <div class="col weekday-header">Do</div>
+                <div class="col weekday-header">Vr</div>
+                <div class="col weekday-header">Za</div>
+                <div class="col weekday-header">Zo</div>
+            </div>
+
+            <% layout.forEach(function(row, i) { %>
+                <div class="row g-0 text-center">
+                    <% for (let j=0; j < row.length; j++) { %>
+                        <div class="col calendar-cell">
+                            <% if((j in row)) { %>
+                                <div class="date-number">
+                                    <%= row[j].number %>
+                                        <% row[j].todos.forEach(function(todo, k) { %>
+                                            <div id=<%=todo.id %> class="task-card mt-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6>
+                                                        <%= todo.naam %>
+                                                    </h6>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <a href="#" class="info-btn text-muted" data-bs-toggle="modal"
+                                                            data-bs-target="#todoModifyModal"
+                                                            data-todo-name="<%= todo.naam %>"
+                                                            data-todo-task="<%= todo.taak %>"
+                                                            data-todo-date="<%= todo.datum %>"
+                                                            data-todo-id="<%= todo.id %>" title="Aanpassen">
+                                                            <i class="bi bi-pencil-fill"></i>
+                                                            </a>
+                                                            <a href="/delete?identificatie=<%= todo.id %>"
+                                                                class="delete-btn text-muted" title="Delete">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                    </div>
+                                                </div>
+                                                <p align="left">
+                                                    <%= todo.taak %>
+                                                </p>
+                                            </div>
+                                            <% }); %>
+                                </div>
+                                <% } %>
+                        </div>
+                        <% } %>
+                </div>
+                <% }); %>
+        </div>
+    </div>
+
+    <!-- Modal new todo-->
+    <div class="modal fade" id="popupForm" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Nieuwe taak</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form action="/submit-form" method="POST">
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Taak</label>
+                            <input type="text" name="taskField" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Naam</label>
+                            <input type="text" name="nameField" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Datum</label>
+                            <input type="date" name="dateField" class="form-control">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Sluit</button>
+                        <button type="submit" class="btn btn-success">Verstuur</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal new todo-->
+    <div class="modal fade" id="todoModifyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Wijzig taak</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form action="/submit-edit" method="POST">
+
+                    <div class="modal-body">
+
+                        <input type="hidden" name="idField" id="formIdField" class="form-control">
+
+                        <div class="mb-3">
+                            <label class="form-label">Taak</label>
+                            <input type="text" name="taskField" id="formTaskField" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Naam</label>
+                            <input type="text" name="nameField" id="formNameField" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Datum</label>
+                            <input type="date" name="dateField" id="formDateField" class="form-control">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Sluit</button>
+                        <button type="submit" class="btn btn-success">Verstuur</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('todoModifyModal');
+
+            modal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                // Extract data from button
+                const name = button.getAttribute('data-todo-name');
+                const task = button.getAttribute('data-todo-task');
+                const date = button.getAttribute('data-todo-date');
+                const id = button.getAttribute('data-todo-id');
+
+                // Insert into modal
+                modal.querySelector('#formNameField').value = name;
+                modal.querySelector('#formTaskField').value = task;
+                modal.querySelector('#formDateField').value = date;
+                modal.querySelector('#formIdField').value = id;
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
