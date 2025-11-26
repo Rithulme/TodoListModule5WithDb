@@ -1,11 +1,11 @@
-function getMonthName(num) {
+function getHeader(month, year){
   const months = [
     "Januari", "Februari", "Maart", "April", "Mei", "Juni",
     "Juli", "Augustus", "September", "Oktober", "November", "December"
   ];
 
   // Convert 1–12 to index 0–11
-  return months[num] || null; 
+  return months[month] + " " + year; 
 }
 
 function getFirstDayOfMonth(month, year){
@@ -76,7 +76,34 @@ function addFullWeek(layout, counter){
   return layout;
 }
 
+function getButtonReferences(month, year){
+  let returnData = {};
+  if(month == 11){
+    returnData.nextMonth = 0;
+    returnData.previousMonth = 10;
+    returnData.nextYear = year + 1;
+    returnData.previousYear = year;
+  }
+  else if(month == 0){
+    returnData.nextMonth = 1;
+    returnData.previousMonth = 11;
+    returnData.nextYear = year;
+    returnData.previousYear = year - 1;
+  }
+  else{
+    returnData.nextMonth = month + 1;
+    returnData.previousMonth = month - 1;
+    returnData.nextYear = year;
+    returnData.previousYear = year;
+  }
+
+  return returnData;
+}
+
+
+
 module.exports = {
-    getMonthName,
-    getCalendarMonthStructure
+    getHeader,
+    getCalendarMonthStructure,
+    getButtonReferences
 };

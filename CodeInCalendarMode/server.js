@@ -23,7 +23,8 @@ app.get("/", (req, res) =>{
 
     let calendarStructure = calModule.getCalendarMonthStructure(dateToday.getMonth(), dateToday.getFullYear());
     let todos = dbFunct.loadTodosByDate(dateToday.getMonth() + 1);
-    
+    let buttonFillData = calModule.getButtonReferences(dateToday.getMonth(), dateToday.getFullYear());
+    let header = calModule.getHeader(dateToday.getMonth(), dateToday.getFullYear());
 
     for(let i = 0; i < calendarStructure.rows; i++){
         console.log(calendarStructure.layout[i]);
@@ -37,17 +38,18 @@ app.get("/", (req, res) =>{
             }            
         }
     }
-    console.log(calendarStructure);
-    res.render("index", {layout: calendarStructure.layout, nextMonth: 12, nextYear: 2025 });
+    console.log({layout: calendarStructure.layout, buttonData: buttonFillData, headerText: header });
+    res.render("index", {layout: calendarStructure.layout, buttonData: buttonFillData, headerText: header });
 });
 
 app.get("/gotoDate", (req, res) =>{
-    let month = req.query.month - 1;
-    let year = req.query.year - 1;
+    let month = parseInt(req.query.month);
+    let year = parseInt(req.query.year);
 
     let calendarStructure = calModule.getCalendarMonthStructure(month, year);
-    let todos = dbFunct.loadTodosByDate(req.query.month);
-    
+    let todos = dbFunct.loadTodosByDate(month + 1);
+    let buttonFillData = calModule.getButtonReferences(month, year);
+    let header = calModule.getHeader(month, year);
 
     for(let i = 0; i < calendarStructure.rows; i++){
         console.log(calendarStructure.layout[i]);
@@ -62,7 +64,7 @@ app.get("/gotoDate", (req, res) =>{
         }
     }
     console.log(calendarStructure);
-    res.render("index", {layout: calendarStructure.layout });
+    res.render("index", {layout: calendarStructure.layout, buttonData: buttonFillData, headerText: header });
 });
 
 app.get("/delete", (req,res) => {

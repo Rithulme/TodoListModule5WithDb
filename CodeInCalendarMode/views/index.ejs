@@ -77,15 +77,14 @@
     <div class="container py-4">
         <div class="d-flex justify-content-between mb-4">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#popupForm">Taak toevoegen</button>
-            <button class="btn btn-secondary">Settings</button>
             <div class="d-flex gap-2 align-items-center" style="width: 200px;">
-                <button class="btn btn-primary w-100">Previous</button>
-                <a href="/gotoDate?month=12&year=2025" class="btn btn-primary w-100">Next</a>
+                <a href="/gotoDate?month=<%= buttonData.previousMonth %>&year=<%= buttonData.previousYear %>" class="btn btn-primary w-100">Previous</button>
+                <a href="/gotoDate?month=<%= buttonData.nextMonth %>&year=<%= buttonData.nextYear %>" class="btn btn-primary w-100">Next</a>
             </div>
         </div>
 
         <div class="calendar-wrapper">
-            <div class="calendar-header text-center">November 2025</div>
+            <div class="calendar-header text-center"><%= headerText %></div>
 
             <div class="row g-0 text-center">
                 <div class="col weekday-header">Ma</div>
